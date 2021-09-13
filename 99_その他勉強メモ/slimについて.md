@@ -26,7 +26,7 @@ https://github.com/slim-template/slim/blob/master/README.jp.md
 ```
 p Hello, World!!
 ```
-- |(パイプ)の後の記述はテキストとして扱われる。複数行にまたがるテキストなどに用いる
+- |(パイプ)の後の記述はテキストとして扱われる。複数行にまたがるテキストやインデントなどに用いる
 ```
 p |
   Hello, World!!
