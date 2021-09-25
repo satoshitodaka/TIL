@@ -17,6 +17,7 @@ has_secure_password
 end
 ```
 - ユーザーがパスワードを入力する際は、passwordとpassword_confirmationを入力させ、一致した場合はpasswordをハッシュ化したものをpassword_digestとしてDBに保存する。passwordとpassword_confirmationが一致しない場合は検証に失敗し、登録（認証）できない仕組み。
+
 ![Image from Gyazo](https://i.gyazo.com/5c955c4cb2135d44d46213a8607b7f70.png)
 
 ## 4 ユーザー管理機能一式を追加する 
