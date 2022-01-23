@@ -59,3 +59,4 @@ yarn add swiper
 - https://qiita.com/miketa_webprgr/items/0a3845aeb5da2ed75f82
 - https://swiperjs.com/get-started
 - https://hackmd.io/QRkgKj51RyWVz5O2uBaYdQ
+- https://qiita.com/metheglin/items/c5c756246b7afbd34ae2
