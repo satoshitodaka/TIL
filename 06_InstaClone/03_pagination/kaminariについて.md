@@ -47,8 +47,17 @@ end
 ```
 rails g kaminari:views　導入するテーマ
 ```
+- テーマを導入すると、各ビューファイルは`pagination`クラスが付加されるため、これに対してCSSを書くことで適用できる。
+```
+= paginator.render do
+  nav
+    ul.pagination
+      == first_page_tag unless current_page.first?
+      == prev_page_tag unless current_page.first?
+```
 # 参考
 - 現場rails
 - https://pikawaka.com/rails/kaminari
 - https://github.com/kaminari/kaminari
 - https://github.com/amatsuda/kaminari_themes
+- https://www.autovice.jp/articles/139
