@@ -35,8 +35,9 @@ p Book.first.price.class
 ## 使い方・実装について
 - インスタクローンにおいては、検索フォームをFormObjectとして切り出す。
 - 検索フォームはDBにアクセスしないので、、、
-  -　`include ActiveModel::Model`と記述することにより、ActiveModelの機能を利用する。
-  -　　'include ActiveModel::Attributes'と記述することで、ActiveModel：：Attributesを利用する。
+  - 　`include ActiveModel::Model`と記述することにより、ActiveModelの機能を利用する。
+  - 　`include ActiveModel::Attributes`と記述することで、ActiveModel：：Attributesを利用する。
+- これにより、検索フォームに任意の属性と型を指定できるようになる。
 ```rb
 class SearchPostsForm
   include ActiveModel::Model
