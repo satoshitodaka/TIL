@@ -5,6 +5,6 @@
   - scopeでは別のscopeメソッドを呼び出すため、`ActiveRecord::Relation`もしくは`nil`を返すようにすべき
 
 # ActiveRecord::Relation
-
+[ActiveRecord::Relation.md](https://github.com/satoshitodaka/TIL/blob/main/06_InstaClone/07_search/ActiveRecord::Relation.md)
 # 参考
 [Railsガイド　スコープ](https://railsguides.jp/active_record_querying.html#%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%97)
