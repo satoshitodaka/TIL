@@ -3,6 +3,12 @@
 - ある一つのモデルが他の複数もモデルに属していることを、一つの関連づけだけで表現できる。
 
 ### 実装
+#### ポリモーフィック関連付をするモデルを作成する
+- 今回はポリモーフィックをマイグレーションファイルに記述したが、`rails g`のコマンドに入れると以下のようになる。
+  - `#{関連名}:references{polymorphic}` と書くとマイグレーションファイルに記述される。
+```
+rails g model Activity subject:references{polymorphic} user:references action_type:integer read:boolean
+```
 #### 従属する（利用される）モデルに記述する。
 ```rb
 class Activity < ApplicationRecord
@@ -84,4 +90,4 @@ referencesで記述した場合でも、shema.rbを確認すると確かにtype�
 
 [複数のテーブルに対して多対一で紐づくテーブルの設計アプローチ](https://spice-factory.co.jp/development/has-and-belongs-to-many-table/)
 
-
+[ポリモーフィック関連覚え書き](https://qiita.com/kasei-san/items/a9795de8a6558fbcff14)
