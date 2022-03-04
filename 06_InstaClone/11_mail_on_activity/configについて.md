@@ -1,6 +1,15 @@
 ### configとは
 
 ### そもそも定数管理とは
+- 定数の管理を楽にし、メンテナンス性をあげるもの。
+  - 環境ごとに関数を変えたり、１箇所にまとめて設定することができたりする。
+- Railsアプリケーションにおいては、定数管理の手法がある。
+  - application_controllerに記述する。
+  - config/initializers/constants.rbにて宣言する
+  -  gemを使う
+    - config
+    - settings
+    - などなど  
 
 ### 導入
 Gemfileに記述
@@ -11,20 +20,32 @@ gem 'config'
 ```
 bundle exec rails g config:install
 ```
-- 各種ファイルが生成される。
+各種ファイルが生成される。
 ```
+# configの設定ファイル
+config/initializers/config.rb
+
+# すべての環境で利用する定数を定義
 config/settings.yml
+# ローカル環境で利用する定数を定義
 config/settings.local.yml
+# 開発環境で利用する定数を定義
 config/settings/development.yml
+# 本番環境で利用する定数を定義
 config/settings/production.yml
+# テスト環境で利用する定数を定義
 config/settings/test.yml
 ```
-- gitignoreは下記の追記
+gitignoreは下記が追記される
 ```
 config/settings.local.yml
 config/settings/*.local.yml
 config/environments/*.local.yml
-
+```
+config/settings/development.ymlに定数を設定する。
+```yml
+default_url_options:
+  host: 'localhost:3000'
 ```
 
 
