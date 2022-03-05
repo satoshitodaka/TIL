@@ -6,10 +6,7 @@
 - Railsアプリケーションにおいては、定数管理の手法がある。
   - application_controllerに記述する。
   - config/initializers/constants.rbにて宣言する
-  -  gemを使う
-    - config
-    - settings
-    - などなど  
+  -  gemを使う(config/settingsなど)  
 
 ### 導入
 Gemfileに記述
@@ -47,7 +44,14 @@ config/settings/development.ymlに定数を設定する。
 default_url_options:
   host: 'localhost:3000'
 ```
-
+今回は、config/environments/development.rbにて定数を呼び出す。
+```rb
+Rails.application.configure do
+  # 以下を追記
+  config.action_mailer.default_url_options = Settings.default_url_options.to_h
+  config.action_mailer.delivery_method = :letter_opener_web
+end
+```
 
 ### 参考
 [Config - Github](https://github.com/rubyconfig/config)
