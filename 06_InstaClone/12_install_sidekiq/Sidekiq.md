@@ -2,18 +2,18 @@
 
 ## 実装
 ### Sidekiqの導入・設定
-Gemfile に記述してインストールする
+- Gemfile に記述してインストールする
 ```
 gem 'sidekiq'
 ```
 
-また、前提としてSidekiqの使用にはRedisが必要となる。<br>
-インスタクローンでは、課題１にて導入ずみなのでスキップ。もし導入する場合はbrewで導入する
+- また、前提としてSidekiqの使用にはRedisが必要となる。
+  - インスタクローンでは、課題１にて導入ずみなのでスキップ。もし導入する場合はbrewで導入する
 ```
 brew install redis
 ```
 
-Initializerに起動時の設定を書く。
+- Initializerに起動時の設定を書く。
 
 config/initializers/sidekiq.rb
 ```rb
@@ -29,22 +29,7 @@ Sidekiq.configure_client do |config|
   }
 end
 ```
-
-公式通りでは、ここでJobを作成するが、インスタクローンではMailerをJobに指定する。
-
-config/sidekiq.yml
-```yml
-:concurrency: 25
-:queues:
-  - default
-  - mailers
-```
-設定ファイルの場所を明示的に伝える必要があるので、下記を実行する。
-```
-sidekiq -C config/initializer/sidekiq.yml
-```
-
-ActiveJobのアダプタにSidekiqを指定する
+- ActiveJobのアダプタにSidekiqを指定する
 
 config/application.rb
 ```rb
@@ -54,6 +39,29 @@ module InstaClone
     config.active_job.queue_adapter = :sidekiq
   end
 end
+```
+
+### Sidekiqの高度な設定
+- Sidekiqの高度な設定を行うことができる。
+  - Sidekiqを実行するときにオプションで実行するか、config/sidekiq.ymlに記述する。
+
+インスタクローンの内容通り、キューを指定する場合は　`-q`オプションを付けてターミナルで実行する
+```
+bundle exec sidekiq -q default -q mailers
+```
+
+- config/sidekiq.ymlに設定する場合
+  - 設定ファイルに記述する場合、ファイルの場所を明示的に伝える必要があるので、下記を実行する。
+```yml
+# 並行して実行するSidekiqプロセスの数を指定する。デフォルトでは10スレッド
+:concurrency: 25
+# キューを設定する。
+:queues:
+  - default
+  - mailers
+```
+```
+sidekiq -C config/initializer/sidekiq.yml
 ```
 
 ### ダッシュボードを作る
@@ -88,7 +96,7 @@ bundle exec sidekiq
 
 ### 参考
 #### Sidekiq/wiki
-[]()
+[Getting Started](https://github.com/mperham/sidekiq/wiki/Getting-Started)
 
 [Advanced Options](https://github.com/mperham/sidekiq/wiki/Advanced-Options)
 
