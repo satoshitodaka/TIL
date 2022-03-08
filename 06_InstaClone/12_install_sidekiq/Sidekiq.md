@@ -86,12 +86,7 @@ Rails.application.routes.draw do
 end
 ```
 
-Sisdekiqを起動する
-```
-bundle exec sidekiq
-```
-
-ブラウザから確認できるようになる
+Sisdekiqを起動すると、ブラウザから確認できるようになる
 ![Image from Gyazo](https://i.gyazo.com/8506fe49a0867ba31f0e4d0b74ffc10d.png)
 
 ### 参考
