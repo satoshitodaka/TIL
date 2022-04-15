@@ -27,14 +27,14 @@
 
 大きな要素（エンティティ）から順に整理していくと良いらしい。また、実際に使用される場面をイメージしながら作ること。
 
-ここに画像を貼る
+[![Image from Gyazo](https://i.gyazo.com/77460a6c8a280ea0886956650147fb83.png)](https://gyazo.com/77460a6c8a280ea0886956650147fb83)
 
 ### ER図（実体関連図）に書き出す
 以下のように、概念のパズルから展開していく
 
 [![Image from Gyazo](https://i.gyazo.com/7e3cf472d3247786b9bb7f4ea90ccedb.png)](https://gyazo.com/7e3cf472d3247786b9bb7f4ea90ccedb)
 
-ここに画像を貼る
+[![Image from Gyazo](https://i.gyazo.com/5e06941dc99907dc0d6008cc7baecabb.png)](https://gyazo.com/5e06941dc99907dc0d6008cc7baecabb)
 
 この手書きの図を具体的なER図に変換してみる
 [![Image from Gyazo](https://i.gyazo.com/9fd106d286b41f160781471456721543.png)](https://gyazo.com/9fd106d286b41f160781471456721543)
