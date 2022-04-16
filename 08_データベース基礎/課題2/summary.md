@@ -15,5 +15,9 @@
 - えさ
 
 ### 概念のパズルを作る
-### ER図に書き出す
-### 正規化する
+
+画像を貼る
+
+### ER図に書き出す・正規化する
+
+[![Image from Gyazo](https://i.gyazo.com/f428a9e4bd6d0f4e082b0006510193bf.png)](https://gyazo.com/f428a9e4bd6d0f4e082b0006510193bf)
