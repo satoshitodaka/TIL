@@ -16,7 +16,7 @@
 
 ### 概念のパズルを作る
 
-画像を貼る
+[![Image from Gyazo](https://i.gyazo.com/c67935c5130a4fa680d4481e041c5cfb.jpg)](https://gyazo.com/c67935c5130a4fa680d4481e041c5cfb)
 
 ### ER図に書き出す・正規化する
 
