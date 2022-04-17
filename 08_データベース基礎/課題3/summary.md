@@ -13,6 +13,25 @@ LINEのようなチャットアプリのテーブル設計をしてください�
 - コメント
 - 既読判定
 
+### 概念のパズルを考えてみる
+- チャットルームとユーザーの関係は、中間テーブルを使って設計するのが良さそう。
+  - ユーザーはチャットルームを持っているし、逆も然り、チャットルームもユーザーを持っている。
+- 既読判定について
+  - インスタクローンでは通知のカラムを設けていたが、グループチャットではこの手法は適切ではなさそう
+  - チャットメンバーとチャットの中間テーブルを作成して管理する。
 
+### 作成したER図
+[![Image from Gyazo](https://i.gyazo.com/6630585e768712d8caecb9b11c6225c4.png)](https://gyazo.com/6630585e768712d8caecb9b11c6225c4)
 
+### 提出2回目
+変更点は以下の通りです。
 
+- コメントや既読管理を、中間テーブルのgroup_chat_usersに紐付けていた。適切ではないのでusersに紐づけるようにした。
+- テーブル名messages_readedは文法としておかしいので、messages_readに修正した。
+- その他テーブル名を修正
+[![Image from Gyazo](https://i.gyazo.com/68a8ce18c32dcbd0a83ceb3cf9be05a6.png)](https://gyazo.com/68a8ce18c32dcbd0a83ceb3cf9be05a6)
+
+### おまけ
+ユーザーの最終既読日時を使って、既読判定を行う。
+
+[![Image from Gyazo](https://i.gyazo.com/d75cabaf41b99eedfa00ee60f3132332.png)](https://gyazo.com/d75cabaf41b99eedfa00ee60f3132332)
