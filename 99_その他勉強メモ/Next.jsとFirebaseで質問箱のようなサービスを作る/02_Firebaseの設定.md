@@ -15,8 +15,8 @@ import 'firebase/analytics'
 import 'firebase/auth'
 import 'firebase/firestore'
 
-// Firebaseのコードを転記するとエラーが発生する。Firebaseはブラウザ起動時に利用するが、
-// Next.jsはサーバーサイドでも稼働するのでWindow オブジェクトの有無でブラウザでの実行を判断する。
+// Firebaseコンソールに記述のコードをそのまま転記、Firebaseを初期化するとエラーが発生する。Next.jsはサーバーサイドでも稼働するため。
+// Firebaseはブラウザ起動時に利用するため、Window オブジェクトの有無でブラウザでの実行を判断する。
 // また、このファイルが複数回読み込まれる場合があり、その度にアプリの初期化されると困るため、getApps().lengthでアプリの有無を条件に加える。
 if (typeof window !== 'undefined' && getApps().length === 0) {
   // firebaseConfigには、Firebaseのコンソールに表示された内容を記述する。
@@ -36,6 +36,7 @@ if (typeof window !== 'undefined' && getApps().length === 0) {
 }
 ```
 > [app package - firebase](https://firebase.google.com/docs/reference/js/app)
+
 > [Google アナリティクスを使ってみる - firebase](https://firebase.google.com/docs/analytics/get-started?hl=ja&platform=web)
 
 - .env.localにFirebaseの環境変数を設定する。環境変数の値はFirebaseのコンソールを参照する。
@@ -53,5 +54,6 @@ NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=XXXXXXXXX
 import '../lib/firebase'
 ```
 ## その他参考
-- [import - mdn web doc](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Statements/import)
+- [import - mdn web doc](https://developer.mozilla.org/ja//docs/Web/JavaScript/Reference/Statements/import)
+
 - [module(import/export)ってなんなん? - Zenn](https://zenn.dev/kanachan/articles/ad28de7389bcd0)
