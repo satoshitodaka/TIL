@@ -3,9 +3,12 @@
 ```
 $ rails g model space name:string description:text address:string nearest_station:string latitude:float longitude:float
 ```
-### spacesのコントローラとビューを簡単に実装
+- モデルのバリデーションやコントローラは割愛する
 
-
+### ビュー
+#### Rating
+- DaisyUIのRatingを使うことで、評価を表示・保存できる。今回は表示機能のみ。
+> [Rating 評価 - DaisyUI](https://daisyui.com/components/rating/)
 
 ### ダミーデータを作成する
 ```rb
@@ -37,9 +40,8 @@ $ rails g model space name:string description:text address:string nearest_statio
 end
 ```
 
-### space_types
-- レンタルスペースの種類を管理するモデル。
-- レンタルスペースの種類自体を管理するモデル`space_type`とスペースとの中間テーブル`space_type_mapping`を使って実装する。
+### レンタルスペースの種類
+- レンタルスペースのタイプを管理するモデル`space_type`とスペースとの中間テーブル`space_type_mapping`を使って実装する。
 #### space_typesモデルを作る
 ```
 $ rails g model space_type name:string:uniq
@@ -61,9 +63,9 @@ class Space < ApplicationRecord
   validates :description, presence: true
 end
 ```
-- Space の入力フォームを整える
-  - `collection_check_boxes`ヘルパーを使うことでspace_typeのチェックボックスが生成される。
-    - ラベルの表記自体は省略しても動作するが、DaisyUIを適用させるために？クラスをきちんと記述する。
+#### Spaceの入力フォームを整える
+- `collection_check_boxes`ヘルパーを使うことでspace_typeのチェックボックスが生成される。
+  - ラベルの表記自体は省略しても動作するが、DaisyUIを適用させるために？クラスをきちんと記述する。
 ```html
 <div class="form-control w-full max-w-xs mb-5">
     <%= f.label :space_types, class: 'label' %>
@@ -99,9 +101,8 @@ end
 ```
 > [pluck 指定したカラムのレコードの配列を取得](https://railsdoc.com/page/model_pluck)
 
-#### Space作成時にspace_typeを送信できるようにする
-
-### features
+### レンタルスペースのfeatures（特徴）
+- レンタルスペースの特徴を管理するモデル`feature`とスペースとの中間テーブル`feature_mapping`を使って実装する。
 #### モデルを作る
 ```
 rails g model feature name:string:uniq
