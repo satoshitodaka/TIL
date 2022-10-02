@@ -29,3 +29,7 @@
 ### ターミナル
 > [手軽に導入できるStarshipでプロンプトをおしゃれにする](https://dev.classmethod.jp/articles/customize-prompt-with-starship/)
 > [設定 - Starship](https://starship.rs/ja-jp/config/)
+
+### Node.js
+- nvmを使ってNode.jsを導入する
+> [nvm](https://github.com/nvm-sh/nvm)
