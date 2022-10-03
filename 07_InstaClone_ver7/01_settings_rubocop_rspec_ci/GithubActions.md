@@ -12,25 +12,25 @@
 ```yml
 # GithubリポジトリのActionsタブに表示される名前
 name: Test
-
 # ワークフローのトリガーを指示する。
 on: [push]
 
 # 実行される全てのジョブを表す（直下にグループを明示する）
 jobs:
-  
   # rspecというジョブを定義している
   rspec:
-    # Githubによってホストされている仮想マシンで実行されることを示す
+    # 使用する仮想マシンを指定する。
     runs-on: ubuntu-latest
+    # ジョブ実行時に起動するDockerコンテナを定義する。
     services:
-      db_depot:
+      db:
         image: mysql:5.7.33
         ports:
           - 3306:3306
         env:
           TZ: "Asia/Tokyo"
           MYSQL_ROOT_PASSWORD: mysql
+        # コンテナを作成するときのオプションを指定できる。ここではMySQLの疎通確認をし、ヘルスチェックでDBへの接続が正常かどうかを確かめる。
         options: --health-cmd="mysqladmin ping -pmysql" --health-interval=5s --health-timeout=2s --health-retries=3
     container:
       image: ruby:3.1.1
@@ -91,4 +91,7 @@ jobs:
 ```
 
 ### 参考
-- []()
+#### コンテナ関連
+- [サービスコンテナについて](https://docs.github.com/ja/actions/using-containerized-services/about-service-containers)
+- [jobs.<job_id>.services.<service_id>.options](https://docs.github.com/ja/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idservicesservice_idoptions)
+- [mysqlの疎通確認(ログイン確認)- Qiita](https://qiita.com/sakito/items/7ddcbfb49edc7a50c6d7)
