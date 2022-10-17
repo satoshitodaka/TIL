@@ -6,7 +6,7 @@
 ## 実装
 ### 必要なファイルを作成する
 ```
-touch {dockerfile,docker-compose.yml,endpoint.sh}
+touch {Dockerfile,docker-compose.yml,endpoint.sh}
 ```
 
 ### Dockerfileを作る
@@ -71,6 +71,8 @@ services:
   web:
     # buildは構築時に適用するオプションを指定する。今回はカレントディレクトリに作成する旨を指定
     build: .
+    # `bash -c`により、読み込んだstring(コマンド)を実行する
+    # tmp/pids/server.pidが残っていたら削除し、Railsのサーバーを起動する。
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
     # ローカルファイルの変更をコンテナに同期するという設定。ローカル:コンテナと記述する。o
     # :cachedオプションをつけると、ホスト側の情報が信頼できることになる（コンテナへの同期は遅延を許容）
@@ -81,10 +83,11 @@ services:
     ports:
       - 3000:3000
     # サービスの依存関係を指定する。
-    # 依存関係を指定した（以下では(コンテナdb)が先に起動する。
+    # 依存関係を指定。以下では(コンテナdb)が先に起動する。
     depends_on:
       - db
     stdin_open: true
+    # コンテナの起動を継続させる
     tty: true
   db:
     # コンテナのもととなるイメージを指定する。
@@ -104,6 +107,8 @@ volumes:
 ```
 #### entrypoint.sh
 ```sh
+# シェルスクリプトのファイルを記述する際は、シェバンを必ず書くこと。
+# シェバンを書くことでインタプリタを指定できる。
 #!/bin/bash
 # エラーが発生するとスクリプトを停止する
 set -e

@@ -39,12 +39,19 @@ services:
 ## 本番環境に公開
 ### 事前準備
 - Herokuにログインしてクレジットカードの登録が必要
+- Heroku CLIを導入する
+```
+brew tap heroku/brew && brew install heroku
+```
 - Heroku CLIでターミナルからログイン
 ```
 heroku login
-<!-- これなんだっけ -->
+```
+- Dockerコンテナをデプロイするためには、Heroku Container Registryにログインする必要がある。
+``` 
 heroku container:login
 ```
+> [Container Registry および Runtime (Docker デプロイ)](https://devcenter.heroku.com/ja/articles/container-registry-and-runtime)
 ### herokuでアプリを作成する
 ```
 heroku create rails_docker_practice_satoshi
