@@ -112,3 +112,17 @@ end
 - [Capybara](https://github.com/teamcapybara/capybara/blob/master/README.md)
 - [Capybara(和訳)](https://github.com/willnet/capybara-readme-ja)
 - [Seleniumでよく使うChromeOptionsまとめ](https://boardtechlog.com/2020/08/programming/seleniumchrome%E3%81%A7%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86chromeoptions%E3%81%BE%E3%81%A8%E3%82%81/)
+
+## Factory_botの設定
+- `spec/rails_helper.rb`に追記する
+```rb
+# FactoryBotを使用するために読み込み
+require 'factory_bot'
+```
+- 今回は`spec/rails_helper.rb`を綺麗に保つため、`spec/support/factory_bot.rb`に追記する。
+```rb
+RSpec.configure do |config|
+  # 下記を追記
+  config.include FactoryBot::Syntax::Methods
+end
+```
