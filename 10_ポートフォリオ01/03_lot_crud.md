@@ -248,8 +248,154 @@ def get_neaby_locations
   JSON.parse(response)
 end
 ```
-### 出発地を名称から検索できるようにする。可能であれば、リアルタイムでの検索結果を取得する。
-- 難しそうなので後日
 
 ### 現在地を取得して出発地にセットするようにする。
-- 難しそうなので後日
+- 基本的にはドキュメント通りに書いて実装。
+```js
+// 現在地を取得してピンを立てる
+// 定数locationButtonを定義し、要素buttonを代入する。これにより、地図の中にbuttonという要素が作られる。
+const locationButton = document.createElement("button");
+// ボタンのテキスト表示を設定
+locationButton.textContent = "現在地から歩く";
+// ボタンのCSSクラスを定義する
+locationButton.classList.add("custom-map-control-button");
+// マップ内でのボタンの位置を指定する。
+map.controls[google.maps.ControlPosition.TOP_RIGHT].push(locationButton);
+// ボタンが押された時の処理を記述する
+locationButton.addEventListener("click", (e) => {
+  // フォームのデフォルトの動作をキャンセルする
+  e.preventDefault();
+  // マーカーがあれば削除する
+  if (currentMarker != null) {
+    currentMarker.setMap(null)
+  }
+  // ブラウザの位置情報が有効である場合の処理
+  if (navigator.geolocation) {
+    // Geolocationオブジェクトから現在位置を取得する
+    navigator.geolocation.getCurrentPosition(
+      // 取得した情報をpositionとし、posに緯度経度の情報を代入する
+      (position) => {
+        const pos = {
+          // coordsプロパティに位置情報が含まれるらしい
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        // mapの中心に取得したposをセットする
+        map.setCenter(pos);
+        // 取得した現在地でマーカーを作成する。
+        currentMarker = new google.maps.Marker({
+          position: pos,
+          map: map
+        });
+        // 設定したTargetの値に、イベントで取得した緯度経度情報を代入する。これにより、Form側で紐付けた入力欄に渡される
+        this.latitudeTarget.value = pos.lat
+        this.longitudeTarget.value = pos.lng
+      }
+    );
+  } else {
+    // 位置情報を取得できなければ離脱する
+    return false
+  }
+});
+```
+> [地図上にユーザーやデバイスの位置を表示する](https://developers.google.com/maps/documentation/javascript/geolocation?hl=ja)
+> [Navigator.geolocation](https://developer.mozilla.org/ja/docs/Web/API/Navigator/geolocation)
+> [位置の表現](https://developer.mozilla.org/ja/docs/Web/API/Geolocation_API/Using_the_Geolocation_API#%E4%BD%8D%E7%BD%AE%E3%81%AE%E8%A1%A8%E7%8F%BE)
+
+### 出発地を名称から検索できるようにする。可能であれば、リアルタイムでの検索結果を取得する。
+- GoogleMaps APIでPlaces Search Boxが用意されているのでこれを使う。
+- 取得した検索結果にマーカーを設置し、infoWindowsを表示させて位置情報をセットする。
+```js
+// SearchFormで出発地を指定してピンを立てる
+// 検索ボックスを作成する
+const input = document.getElementById("pac-input");
+const searchBox = new google.maps.places.SearchBox(input);
+map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+// 検索結果を現在のマップのビューに偏らせる
+map.addListener("bounds_changed", () => {
+  searchBox.setBounds(map.getBounds());
+});
+
+// 空の配列をmarkersとして宣言する。
+let markers = [];
+
+// 検索結果をユーザーが選択すると、イベントが発生
+searchBox.addListener("places_changed", () => {
+  // SearchBoxの結果をplacesに代入する
+  const places = searchBox.getPlaces();
+
+  // 検索結果がなければ離脱
+  if (places.length == 0) {
+    return;
+  }
+
+  // 古いマーカーを削除する
+  markers.forEach((marker) => {
+    marker.setMap(null);
+  });
+  markers = [];
+
+  // 取得した情報に対し、アイコンと場所の情報を取得する
+  const bounds = new google.maps.LatLngBounds();
+
+  // 取得したplacesについて
+  places.forEach((place) => {
+    // geometryやその位置情報が存在しない場合、ログにメッセージを表示し、離脱する
+    if (!place.geometry || !place.geometry.location){
+      console.log("Returned place contains no geometry");
+      return;
+    }
+
+    // 検索結果よりマーカーを作成し、markersに追加する
+    markers.push(
+      new google.maps.Marker({
+        map,
+        title: place.name, //名称
+        position: place.geometry.location, //緯度経度
+        address: place.formatted_address // 住所
+      })
+    );
+
+    // 表示するウィンドウのコンテンツを設定する
+    const contentString =
+      '<div id="content">' +
+        '<h3>目的地の名称を代入</h3>' +
+        '<p>目的地の住所を代入</p>' +
+      "</div>";
+    
+    // infowindowを作成する
+    const infowindow = new google.maps.InfoWindow({
+      content: contentString,
+      ariaLabel: "Uluru" //これがよくわからない
+    });
+
+    // マーカーを作成する
+    const uluru_marker = new google.maps.Marker({
+      position: uluru,
+      map,
+      title: "Uluru Ayers Rock",
+    });
+    
+    // マーカーをクリックすると、マーカーの場所でinfoWindowが表示される
+    currentMarker.addListener("click", () => {
+      infowindow.open({
+        anchor: currentMarker,
+        map: map
+      });
+    });
+
+    // infoWindowに「この場所から歩く」ボタンを設定し、押下されたら名称と住所、緯度経度を設定する。
+
+    if (place.geometry.viewport) {
+      bounds.union(place.geometry.viewport);
+    } else {
+      bounds.extend(place.geometry.location);
+    }
+  });
+  map.fitBounds(bounds);
+});
+```
+> [Places Search Box](https://developers.google.com/maps/documentation/javascript/examples/places-searchbox?hl=ja#maps_places_searchbox-javascript)
+> [info Windows](https://developers.google.com/maps/documentation/javascript/infowindows?hl=ja)
+> [テンプレートリテラル](https://developer.mozilla.org/ja/docs/Learn/JavaScript/First_steps/Strings#%E3%83%86%E3%83%B3%E3%83%97%E3%83%AC%E3%83%BC%E3%83%88%E3%83%AA%E3%83%86%E3%83%A9%E3%83%AB)
