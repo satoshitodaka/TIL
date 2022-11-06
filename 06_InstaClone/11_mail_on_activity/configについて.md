@@ -1,14 +1,13 @@
-### configとは
-
-### そもそも定数管理とは
+# gem configを使った定数管理
+## そもそも定数管理とは
 - 定数の管理を楽にし、メンテナンス性をあげるもの。
-  - 環境ごとに関数を変えたり、１箇所にまとめて設定することができたりする。
+  - 環境ごとに関数を変えたり、1箇所にまとめて設定することができたりする。
 - Railsアプリケーションにおいては、定数管理の手法がある。
   - application_controllerに記述する。
   - config/initializers/constants.rbにて宣言する
   -  gemを使う(config/settingsなど)  
 
-### 導入
+## 導入
 Gemfileに記述
 ```rb
 gem 'config'

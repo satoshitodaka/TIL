@@ -317,12 +317,10 @@ map.addListener("bounds_changed", () => {
   searchBox.setBounds(map.getBounds());
 });
 
-// 空の配列をmarkersとして宣言する。
 let markers = [];
 
 // 検索結果をユーザーが選択すると、イベントが発生
 searchBox.addListener("places_changed", () => {
-  // SearchBoxの結果をplacesに代入する
   const places = searchBox.getPlaces();
 
   // 検索結果がなければ離脱
@@ -336,56 +334,65 @@ searchBox.addListener("places_changed", () => {
   });
   markers = [];
 
+  const service = new google.maps.places.PlacesService(map);
+
   // 取得した情報に対し、アイコンと場所の情報を取得する
   const bounds = new google.maps.LatLngBounds();
 
-  // 取得したplacesについて
   places.forEach((place) => {
-    // geometryやその位置情報が存在しない場合、ログにメッセージを表示し、離脱する
     if (!place.geometry || !place.geometry.location){
       console.log("Returned place contains no geometry");
       return;
     }
 
-    // 検索結果よりマーカーを作成し、markersに追加する
-    markers.push(
-      new google.maps.Marker({
-        map,
-        title: place.name, //名称
-        position: place.geometry.location, //緯度経度
-        address: place.formatted_address // 住所
-      })
-    );
+    // 検索結果にマーカーを設定し、markersに含める
+    let marker = new google.maps.Marker({
+      map,
+      title: place.name, //名称
+      position: place.geometry.location, //緯度経度
+      address: place.formatted_address, // 住所
+    })
+    markers.push(marker);
 
     // 表示するウィンドウのコンテンツを設定する
     const contentString =
-      '<div id="content">' +
-        '<h3>目的地の名称を代入</h3>' +
-        '<p>目的地の住所を代入</p>' +
+      `<div id="content">` +
+        `<h3>${ marker.title }</h3>` +
+        `<p>${ marker.address }</p>` +
+        `<input type="button" id="setStartPoint" value="ここから歩く" class="btn btn-primary">` +
       "</div>";
-    
+
     // infowindowを作成する
     const infowindow = new google.maps.InfoWindow({
       content: contentString,
-      ariaLabel: "Uluru" //これがよくわからない
     });
 
-    // マーカーを作成する
-    const uluru_marker = new google.maps.Marker({
-      position: uluru,
-      map,
-      title: "Uluru Ayers Rock",
-    });
-    
-    // マーカーをクリックすると、マーカーの場所でinfoWindowが表示される
-    currentMarker.addListener("click", () => {
+    let currentInfoWindow = null;
+
+    // マーカーをクリックすると、マーカーの場所でinfoWindowを表示する
+    marker.addListener("click", () => {
+      // currentInfoWindowが存在すれば閉じる
+      if (currentInfoWindow) {
+        currentInfoWindow.close();
+      }
+      // currentInfoWindowとしてinfowindowを開く
       infowindow.open({
-        anchor: currentMarker,
-        map: map
+        map,
+        anchor: marker
+      });
+      currentInfoWindow = infowindow;
+
+      // infoWindowのDOMが用意できたら発火する
+      currentInfoWindow.addListener('domready', () => {
+        // infoWindowのボタンがクリックされたら発火する
+        document.getElementById("setStartPoint").addEventListener("click", () => {
+          this.startpointnameTarget.value = marker.title;
+          this.startpointaddressTarget.value = marker.address;
+          this.longitudeTarget.value = marker.position.lng();
+          this.latitudeTarget.value = marker.position.lat();
+        });   
       });
     });
-
-    // infoWindowに「この場所から歩く」ボタンを設定し、押下されたら名称と住所、緯度経度を設定する。
 
     if (place.geometry.viewport) {
       bounds.union(place.geometry.viewport);
@@ -399,3 +406,99 @@ searchBox.addListener("places_changed", () => {
 > [Places Search Box](https://developers.google.com/maps/documentation/javascript/examples/places-searchbox?hl=ja#maps_places_searchbox-javascript)
 > [info Windows](https://developers.google.com/maps/documentation/javascript/infowindows?hl=ja)
 > [テンプレートリテラル](https://developer.mozilla.org/ja/docs/Learn/JavaScript/First_steps/Strings#%E3%83%86%E3%83%B3%E3%83%97%E3%83%AC%E3%83%BC%E3%83%88%E3%83%AA%E3%83%86%E3%83%A9%E3%83%AB)
+
+##　Lotのshow画面
+
+- JSを使わないのであれば、料金が発生しないEmbed APIというのがあるらしい。
+> [Maps Embed API の概要](https://developers.google.com/maps/documentation/embed/get-started)
+
+## スペック
+- 途中までスペックを書いたが、GoogleMapsAPIのスペックは面倒らしいので今回はシステムスペックは書かないことにする。以下は参考のためのメモ書き
+### 地図をクリックしてくじを作成するスペック
+- 通常のシステムスペックに加え、GoogleMapをクリックする動作が必要となる。様々な書き方があるようだが、シンプルにidで見つけてclickするのが良さそう。
+```rb
+# やり方1
+map = find('#map').native
+page.driver.browser.action.move_to(map, 200, 190).click.perform
+# やり方2
+# clickメソッドは、場所を指定しなければ要素の中央をクリックするらしいが
+# このスペックでは通らなかったので、場所を指定する
+find('#map').click(x: 30, y: 30)
+```
+```rb
+RSpec.describe 'Lots', type: :system do
+  let!(:user) { create(:user) }
+  let!(:location_type) { create(:location_type) }
+  let!(:activity) { create(:activity) }
+  let!(:activity_location_type) { create(:activity_location_type, activity: activity, location_type: location_type) }
+
+  describe '地図をクリックしてくじを作成する' do
+    context '未ログインユーザー' do
+      it 'くじを作成できる' do
+        visit '/'
+        within '#header' do
+          click_on 'くじを引く'
+        end
+        select 'どこでも', from: 'lot_location_type_id'
+        find('#map').click.click(x: 30, y: 30)
+        click_on '登録する'
+        expect(page).to have_content '散歩くじの結果'
+        puts "#{Rails.application.credentials.google_map_api_key}"
+      end
+    end
+
+    # 省略
+  end
+end
+```
+> [[SOLVED]-TESTING GOOGLE MAP MARKERS WITH CAPYBARA AND SELENIUM IN RAILS-GOOGLEMAPS](https://www.appsloveworld.com/googlemaps/100/59/testing-google-map-markers-with-capybara-and-selenium-in-rails)
+> [Method: Capybara::Node::Element#click](https://www.rubydoc.info/gems/capybara/Capybara%2FNode%2FElement:click)
+> [Ruby on Rails開発のインターン　（Day 16）](https://programming-shop.hatenablog.com/entry/2018/08/07/085919)
+
+### 現在地からくじを作成するスペック
+- Capybaraの環境で現在地の情報を利用する手法として、`execute_script`メソッドで任意のスクリプトを実行するやり方がある。今回は現在地を取得するメソッドとそのレスポンスを予め設定することで、Capybaraが`navigator.geoloation.getCurrentPosition`を利用できるようにする。
+```rb
+describe '現在地を取得してくじを作成する' do
+  context '未ログインユーザー' do
+    it 'くじを作成できる' do
+      visit '/'
+      within '#header' do
+        click_on 'くじを引く'
+      end
+      select 'どこでも', from: 'lot_location_type_id'
+      page.execute_script "navigator.geolocation.getCurrentPosition = function(success) { success({coords: {latitude: 35.6895014, longitude: 139.6917337}}); }"
+      click_on '現在地から歩く'
+      sleep(5)
+      click_on '登録する'
+      expect(page).to have_content '散歩くじの結果'
+    end
+  end
+end
+```
+> [How to simulate sharing geolocation with Capybara?](https://stackoverflow.com/questions/7367405/how-to-simulate-sharing-geolocation-with-capybara)
+> [Capybara::Session#execute_script](https://www.rubydoc.info/gems/capybara/Capybara%2FSession:execute_script)
+
+###　出発地点を検索してくじを作成するスペック
+- 未作成
+
+### VCR
+- WebAPIキーのスペックは、VCRなどでモック化すると良いらしい。GoogleMapsAPIのスペックは面倒らしいので今回は実装しないが、リクエストスペックにはかなり有効そうなので、リンクだけ残しておく。
+> [vcr](https://github.com/vcr/vcr)
+> [VCRを使うとRSpecのWebmockの作成が超絶楽になった！](https://morizyun.github.io/blog/webmock-vcr-gem-rails/)
+> [外部APIを叩くRubyのコードのテストに「VCR」を使ってみました](https://tech.synapse.jp/entry/2021/11/01/100000)
+
+## 行先の写真を表示する
+### 予め用意した写真をランダムで表示する
+
+### 行先の写真をGoogleより取得して表示する
+
+> [場所の写真](https://developers.google.com/maps/documentation/places/web-service/photos)
+> [Google Maps APIでGOTOイートしたつもり](https://techracho.bpsinc.jp/en_tak/2020_12_21/101903)
+
+## スペック
+```rb
+RSpec.describe 'Lots', type: :system do
+  let!(:user) { create(:user) }
+  let!(:location_type) { create(:location_type) }
+  let!(:activity) { create(:activity) }
+  let!(:activity_location_type) { create(:activity_location_type, activity: activity, location_type: location_type) }
