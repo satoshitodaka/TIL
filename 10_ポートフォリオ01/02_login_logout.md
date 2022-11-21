@@ -15,7 +15,6 @@ module WalkingLot
 
   end
 end
-
 ```
 ## annotate
 - Rails6.1辺りより、`annotate --routes`が正しく動作しないようである。今回は下記のissueを参考にし、`lib/tasks/routes.rake`にタスクを追記することで解消した。
@@ -70,3 +69,69 @@ prepare:
 > [Node.js のビルドとテスト](https://docs.github.com/ja/actions/automating-builds-and-tests/building-and-testing-nodejs)
 
 - GithubActionsを実行したところ、アセットパイプラインのエラーが発生した。
+
+## ログイン系のシステムスペックで発生する例外処理のエラー
+- 404や500エラーの際に専用のページを表示するようにしたところ、ログイン系のスペックで例外処理が発生するらしく、スペックでエラーが出るようになった。
+```
+1) ログイン ログイン機能 入力内容が正しい場合 ログインができること
+     Failure/Error: render template: 'errors/error_404', status: 404, layout: 'application', content_type: 'text/html'
+     
+     ActionView::MissingTemplate:
+       Missing template errors/error_404 with {:locale=>[:ja], :formats=>[:png], :variants=>[], :handlers=>[:raw, :erb, :html, :builder, :ruby, :jbuilder]}.
+     
+       Searched in:
+         * "/walking_lot/app/views"
+         * "/usr/local/bundle/gems/rails_admin-3.1.0/app/views"
+         * "/usr/local/bundle/gems/kaminari-core-1.2.2/app/views"
+         * "/usr/local/bundle/gems/actiontext-7.0.4/app/views"
+         * "/usr/local/bundle/gems/actionmailbox-7.0.4/app/views"
+     # /usr/local/bundle/gems/meta-tags-2.18.0/lib/meta_tags/controller_helper.rb:22:in `render'
+     # ./app/controllers/application_controller.rb:17:in `render_404'
+     # /usr/local/bundle/gems/actiontext-7.0.4/lib/action_text/rendering.rb:20:in `with_renderer'
+     # /usr/local/bundle/gems/actiontext-7.0.4/lib/action_text/engine.rb:69:in `block (4 levels) in <class:Engine>'
+     # /usr/local/bundle/gems/rack-2.2.4/lib/rack/tempfile_reaper.rb:15:in `call'
+     # /usr/local/bundle/gems/rack-2.2.4/lib/rack/etag.rb:27:in `call'
+     # /usr/local/bundle/gems/rack-2.2.4/lib/rack/conditional_get.rb:27:in `call'
+     # /usr/local/bundle/gems/rack-2.2.4/lib/rack/head.rb:12:in `call'
+     # /usr/local/bundle/gems/rack-2.2.4/lib/rack/session/abstract/id.rb:266:in `context'
+     # /usr/local/bundle/gems/rack-2.2.4/lib/rack/session/abstract/id.rb:260:in `call'
+     # /usr/local/bundle/gems/railties-7.0.4/lib/rails/rack/logger.rb:40:in `call_app'
+     # /usr/local/bundle/gems/railties-7.0.4/lib/rails/rack/logger.rb:25:in `block in call'
+     # /usr/local/bundle/gems/railties-7.0.4/lib/rails/rack/logger.rb:25:in `call'
+     # /usr/local/bundle/gems/rack-2.2.4/lib/rack/method_override.rb:24:in `call'
+     # /usr/local/bundle/gems/rack-2.2.4/lib/rack/runtime.rb:22:in `call'
+     # /usr/local/bundle/gems/rack-2.2.4/lib/rack/sendfile.rb:110:in `call'
+     # /usr/local/bundle/gems/railties-7.0.4/lib/rails/engine.rb:530:in `call'
+     # /usr/local/bundle/gems/rack-2.2.4/lib/rack/urlmap.rb:74:in `block in call'
+     # /usr/local/bundle/gems/rack-2.2.4/lib/rack/urlmap.rb:58:in `each'
+     # /usr/local/bundle/gems/rack-2.2.4/lib/rack/urlmap.rb:58:in `call'
+     # /usr/local/bundle/gems/rack-2.2.4/lib/rack/builder.rb:244:in `call'
+     # /usr/local/bundle/gems/capybara-3.38.0/lib/capybara/server/middleware.rb:60:in `call'
+     # /usr/local/bundle/gems/puma-5.6.5/lib/puma/configuration.rb:252:in `call'
+     # /usr/local/bundle/gems/puma-5.6.5/lib/puma/request.rb:77:in `block in handle_request'
+     # /usr/local/bundle/gems/puma-5.6.5/lib/puma/thread_pool.rb:340:in `with_force_shutdown'
+     # /usr/local/bundle/gems/puma-5.6.5/lib/puma/request.rb:76:in `handle_request'
+     # /usr/local/bundle/gems/puma-5.6.5/lib/puma/server.rb:443:in `process_client'
+     # /usr/local/bundle/gems/puma-5.6.5/lib/puma/thread_pool.rb:147:in `block in spawn_thread'
+     # ------------------
+     # --- Caused by: ---
+     # Capybara::CapybaraError:
+     #   Your application server raised an error - It has been raised in your test code because Capybara.raise_server_errors == true
+     #   /usr/local/bundle/gems/capybara-3.38.0/lib/capybara/session.rb:163:in `raise_server_error!'
+```
+- `Capybara.raise_server_errors`がtrueとなっていることが原因らしいので、以下の記事を参考にして特定のスペックで404エラーが発生してもスペックを失敗しないように変更
+```rb
+context '入力内容が正しい場合' do
+  it 'ログインができること' do
+    Capybara.raise_server_errors = false
+    visit '/login'
+    within '#login-form' do
+      fill_in 'メールアドレス', with: user.email
+      fill_in 'パスワード', with: 'password'
+      click_on 'ログイン'
+    end
+    expect(page).to have_content 'ログインしました'
+  end
+end
+```
+> [Railsのシステムテスト（Minitest）で「期待どおりに404エラーが発生したこと」を検証する方法 - Qiita](https://qiita.com/jnchito/items/37fcaf4486c4bdf78802)

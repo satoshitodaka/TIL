@@ -38,13 +38,19 @@ end
   - 今回はLot以外のテーブルでUUIDをを設定する予定はないが、共通化できる機能ということでconcerns下に切り出す。
 ```rb
 module IdGenerator
+  # メソッド名にselfをつけると、クラスメソッドになる。
+  # classが使えないため、klassを使うらしい
   def self.included(klass)
+    # klass = Userがcreateされる前にfill_idを実行する
     klass.before_create :fill_id
   end
 
   def fill_id
+    # 繰り返し処理をし、結果をself.idに代入する
     self.id = loop do
+      # uuidを生成してuuidに代入する
       uuid = SecureRandom.uuid
+      # 繰り返し終了の条件は、uuidが有効で、idが生成したuuidとなるデータがself.class=Lotに存在しない場合
       break uuid unless self.class.exists?(id: uuid)
     end
   end
@@ -58,6 +64,9 @@ class Lot < ApplicationRecord
 end
 ```
 > [Rails の UUIDプライマリキーを試す - Qiita](https://qiita.com/HeRo/items/2816e27fb3066db6c4e6)
+> [instance method Module#included](https://docs.ruby-lang.org/ja/latest/method/Module/i/included.html)
+> [module SecureRandom](https://docs.ruby-lang.org/ja/latest/class/SecureRandom.html)
+> [klassってなんやねんってお話 - Qiita](https://qiita.com/chatrate/items/54d9226fa98dd1c887ed)
 
 - MySQLだとパフォーマンスの問題があるらしいので、後々影響するかもしれない。
 > [MySQLでプライマリキーをUUIDにする前に知っておいて欲しいこと](https://techblog.raccoon.ne.jp/archives/1627262796.html)
