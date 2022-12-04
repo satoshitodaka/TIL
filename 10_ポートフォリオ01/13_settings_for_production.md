@@ -162,7 +162,7 @@ end
 ## 本番環境でのメール送信
 - 本番環境でのメール送信のアドオンとして、SendgridとMailgunがある。今回はドキュメントの日本語対応という点より、Sendgridを使ってみる
 > [SendGridとmailgunを比較 - Qiita](https://qiita.com/kusano00/items/9a82dea6e0a77abbb9c4)
-
+> [Ruby on Rails](https://sendgrid.kke.co.jp/docs/Integrate/Frameworks/rubyonrails.html)
 
 ## デプロイ時の詰まりメモ
 ### アセットコンパイル時のエラー

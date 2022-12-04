@@ -135,3 +135,33 @@ context '入力内容が正しい場合' do
 end
 ```
 > [Railsのシステムテスト（Minitest）で「期待どおりに404エラーが発生したこと」を検証する方法 - Qiita](https://qiita.com/jnchito/items/37fcaf4486c4bdf78802)
+
+## SNS認証
+- SNSを使ってユーザー登録できるようにする。
+
+### 詰まった箇所
+- `Oauths#callback`にて401エラーが発生した。
+- 公式ドキュメントや各種ブログにも書かれている通り、`localhost`はNGと書かれているので、Twitter側の認証情報の登録、アプリ側のソースコードを`http://127.0.0.1:3000`としたが、うまくいかない。
+- 基本的な話かもしれないが、開発環境でブラウザでアプリを開く際に、`http://127.0.0.1:3000`を使うことで解決した。
+
+### 参考
+#### Sorcery
+> [External - Sorcery](https://github.com/Sorcery/sorcery/wiki/External)
+
+#### Twitter
+> [GET account/verify_credentials](https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/get-account-verify_credentials)
+
+#### LINE
+> [【画像付き】RailsでDeviseを利用してLINEログイン機能を実装 - Qiita](https://qiita.com/s10aim_tana/items/2d174d4e31e4041700ee)
+
+#### ブログ記事など
+> [Rails】SorceryでTwitter認証](https://blog.aiandrox.com/posts/tech/2020/03/29/)
+> [【Rails】Sorcery で Twitter 認証 [2] - Note](https://note.com/artefactnote/n/ne0089a217489)
+> [【Rails】Sorcery で Twitter 認証 [3] プロフィール画像を取得して ActiveStorage でアップロードしたい](https://note.com/artefactnote/n/n792f9ff697d8)
+
+## パスワードリセット
+> [Reset password](https://github.com/Sorcery/sorcery/wiki/Reset-password)
+
+## 参考
+- DaisyUIを使用しているときに特定のカラーを導入する方法
+> [Is it possible to expand the palette? #195](https://github.com/saadeghi/daisyui/issues/195#issuecomment-1055747794)

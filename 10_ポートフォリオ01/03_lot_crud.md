@@ -504,10 +504,74 @@ end
 > [場所の写真](https://developers.google.com/maps/documentation/places/web-service/photos)
 > [Google Maps APIでGOTOイートしたつもり](https://techracho.bpsinc.jp/en_tak/2020_12_21/101903)
 
-## スペック
+## エラーメッセージのカスタマイズ
+- くじを引く際に、出発地が未登録だとエラーが発生する。但し、緯度経度に対してエラーが出るので少しニュアンスが違う
+[![Image from Gyazo](https://i.gyazo.com/1b4c00ff34a8026a5f810742f94502c1.png)](https://gyazo.com/1b4c00ff34a8026a5f810742f94502c1)
+- 対応の方針は以下の通り
+  - 「出発地を入力してください」は一つだけ出したいので、モデルのバリデーションから片方を外す
+  - エラーメッセージをカスタマイズして「登録してください」と表示する
 ```rb
-RSpec.describe 'Lots', type: :system do
-  let!(:user) { create(:user) }
-  let!(:location_type) { create(:location_type) }
-  let!(:activity) { create(:activity) }
-  let!(:activity_location_type) { create(:activity_location_type, activity: activity, location_type: location_type) }
+class Lot < ApplicationRecord
+  validates :user, presence: true, if: :user_id?
+  validates :start_point_latitude, presence: { message: 'を登録してください' }
+  # 経度のバリデーションは意図的に外した。緯度経度にバリデーションがかかり、エラーメッセージの重複を避けるため
+end
+```
+
+> [Railsのバリデーションエラー時、エラーメッセージのカラム名をカスタマイズする](https://blog.parity-box.com/posts/diary/2022/08/05)
+> [3.3 :message](https://railsguides.jp/active_record_validations.html#message:~:text=nil).valid%3F%0A%3D%3E%20true-,3.3%20%3Amessage,-%E6%97%A2%E3%81%AB%E4%BE%8B%E7%A4%BA%E3%81%97%E3%81%9F)
+
+## スペック
+
+## エラーなど不具合
+### GoogleMapの表示が不安定で、表示に失敗することがある（以下リサーチはしたが、結局やめた）
+- マップの表示が不安定で、ページ読み込み時に失敗するときがある。
+- Webでざっと調べた限り、JSの記述による読み込みの順番っぽいが、Stimulus環境ではどうしたらよいかわからなかった。
+- Stimulusを使ってGoogleMapを表示する場合、マップのコールバックをカスタムイベントに変換し、コントローラとアクションを接続してイベントをリッスンするという手法があるらしい。
+#### 修正内容
+- マップのURLにコールバック関数`initMap`を定義する
+  - `data-turbolinks-eval`を設定することで、処理の重複を避けることができる。（1回しか適用されない）
+```html
+<script async
+  src="https://maps.googleapis.com/maps/api/js?key=<%= Rails.application.credentials.google_map_api_key %>&libraries=places&callback=initMap" data-turbolinks-eval="false">
+</script>
+```
+- `app/javascript/controllers/application.js`にカスタムイベントを記述する
+```js
+window.initMap = function(...args) {
+  // イベントを作成する
+  const event = document.createEvent("Events")
+  // イベントの名前を"google-maps-callback"と設定する
+  event.initEvent("google-maps-callback", true, true)
+  event.args = args
+  window.dispatchEvent(event)
+}
+```
+> [スプレッド構文](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Spread_syntax)
+> [Document.createEvent()](https://developer.mozilla.org/ja/docs/Web/API/Document/createEvent#notes)
+- `app/views/lots/_form.html.erb`で、data属性でアクションも指定する。
+```rb
+<%= form_with model: lot, data: { controller: 'set-start-point', action: "google-maps-callback@window->set_start_point#initMap" } do |f| %>
+<% end %>
+```
+- マップを表示するだけのページも同様
+```html
+<!-- GoogleMap -->
+<div
+  data-controller="show-map"
+  data-action="google-maps-callback@window->show_map#initMap"
+  data-show-map-destinationlatitude-value="<%= @lot.destination_latitude %>"
+  data-show-map-destinationlongitude-value="<%= @lot.destination_longitude %>"
+  data-show-map-startpointlatitude-value="<%= @lot.start_point_latitude %>"
+  data-show-map-startpointlongitude-value="<%= @lot.start_point_longitude %>"
+  class="h-[400px]">
+</div>
+```
+
+
+> [Call Stimulus Function from Google Maps callback](https://discuss.hotwired.dev/t/call-stimulus-function-from-google-maps-callback/191)
+> [Google Maps API with StimulusJS](https://www.driftingruby.com/episodes/google-maps-api-with-stimulusjs)
+
+## Markerが地図上で隠れる場合がある
+- LatLngBoundにロケーションを追加し、fitBoundsメソッドを使えばOK
+> [Auto-center map with multiple markers in Google Maps API v3](https://stackoverflow.com/questions/15719951/auto-center-map-with-multiple-markers-in-google-maps-api-v3)

@@ -42,10 +42,21 @@ end
 ```
 > [404/500エラーページを開発環境で表示したい - Zenn](https://zenn.dev/matsu18/articles/4bd608c2eadf32)
 
+### やっぱり404や500のエラーハンドリングを止める
+- ActiveStorageに保存したURLが404エラーとなる問題が発生する。
+- メンターに相談したところ、意図しない挙動をすることがあるので、あえてハンドリングしないという選択肢もあるとのこと。（今回は削除する）
+- ちなみに、ルーティングを高度に制御することでActiveStorageのエラーを回避することは可能。
+```rb
+get '*path', to: 'application#render_404', constraints: lambda { |request|
+  request.path.exclude? 'rails/active_storage'
+}
+```
+> [ActiveStorageが生成したファイルパス(URL)をNo route matches回避のリダイレクト対象外にする - Qiita](https://qiita.com/NaokiIshimura/items/0f0e56c159c95b59b11f)
+> [3.10 高度な制限](https://railsguides.jp/routing.html#%E9%AB%98%E5%BA%A6%E3%81%AA%E5%88%B6%E9%99%90)
+
 ## NearbySearchの結果により挙動を変える
 - 処理の順番は以下の通り
 1. 入力内容のバリデーション。修正前は`@lot.save`で実行していた。
 2. NearbySearchで検索し、取得件数で処理を変える。
 3. 保存と処理をおこなう。
 
-lot = Lot.build(start_point_latitude: 130, start_point_longitude: 135, location_type_id: 2)
