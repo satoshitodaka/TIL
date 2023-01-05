@@ -73,8 +73,39 @@ class CreateLotActivities < ActiveRecord::Migration[7.0]
   end
 end
 ```
-
-
-
 [【Rails】ActiveRecordでJOIN先のテーブルのカラムで絞り込む](https://mogulla3.tech/articles/2020-04-11-01)
-### その他
+## Activityの作成フォーム
+- フォームヘルパーのcheck_boxesを使う
+> []()
+
+## Activityの作成フォームをFormObjectにする
+- check_boxesで従属するActivityLocationTypeを作成する場合、それ自体にはバリデーションがかからず、ActivityLocationType未作成でもフォームが通ってしまい、後々不都合が生じる。（ActivityLocationTypeのデータを使った画像表示など）
+- FormObjectを使って親子モデルを作成すると、バリデーションを実現できるのではと考え実装してみる。
+
+### Activityコントローラ
+- インスタンス変数を作成するFormにする
+  - 作成後のリダイレクト先を指定する場合、どのように渡す？
+```rb
+def create
+    @activity_form = ActivityForm(activity_form_params)
+
+    if @activity_form.save
+      # create_notification_about_activity_created(@activity)
+      # AdminMailer.with(user: @activity.user, activity: @activity).approval_required.deliver_later
+      redirect_to mypage_activity_path(@activity), success: 'アクティビティを作成しました。公開まで少々お待ちください'
+    else
+      flash.now[:danger] = 'アクティビティの作成に失敗しました'
+      render :new, status: :unprocessable_entity
+    end
+  end
+```
+
+### ビューファイル
+### Form
+```rb
+
+```
+
+### 参考
+#### FormObject全般
+> [Railsのデザインパターン: Formオブジェクト](https://applis.io/posts/rails-design-pattern-form-objects)
